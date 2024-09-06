@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from Flowershop.center import models
 from Flowershop.center.database import SessionLocal
 from Flowershop.center.models import Order
+from Flowershop.center.routers.Basemodel import DailyRevenueResponse, MonthlyRevenueResponse, YearlyRevenueResponse
 from Flowershop.center.routers.auth import get_current_customer
 
 router = APIRouter(
@@ -21,25 +22,11 @@ def get_db():
     finally:
         db.close()
 
-# Dependency to check if the user has admin role
 def admin_required(current_user: dict):
     if current_user['role'] != 1:
         raise HTTPException(status_code=403, detail="You do not have sufficient permissions")
 
-class DailyRevenueResponse(BaseModel):
-    date: date
-    total_revenue: float
 
-class MonthlyRevenueResponse(BaseModel):
-    year: int
-    month: int
-    total_revenue: float
-
-class YearlyRevenueResponse(BaseModel):
-    year: int
-    total_revenue: float
-
-# Get daily revenue statistics for a specific date
 @router.get("/statistics/daily", response_model=DailyRevenueResponse)
 def get_daily_revenue(
     date: Optional[date] = Query(None),
@@ -64,7 +51,7 @@ def get_daily_revenue(
 
     return DailyRevenueResponse(date=result.date, total_revenue=result.total_revenue)
 
-# Get monthly revenue statistics for a specific month and year
+
 @router.get("/statistics/monthly", response_model=MonthlyRevenueResponse)
 def get_monthly_revenue(
     year: Optional[int] = Query(None),
@@ -94,7 +81,7 @@ def get_monthly_revenue(
 
     return MonthlyRevenueResponse(year=int(result.year), month=int(result.month), total_revenue=result.total_revenue)
 
-# Get yearly revenue statistics for a specific year
+
 @router.get("/statistics/yearly", response_model=YearlyRevenueResponse)
 def get_yearly_revenue(
     year: Optional[int] = Query(None),

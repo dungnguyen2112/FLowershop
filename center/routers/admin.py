@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from Flowershop.center import models
 from Flowershop.center.database import SessionLocal
+from Flowershop.center.routers.Basemodel import ProductRequest, ProductResponse, ProductUpdateRequest, CustomerResponse, \
+    OrderResponse
 from Flowershop.center.routers.auth import get_current_customer
 from Flowershop.center.routers.orders import OrderItemResponse
 
@@ -24,49 +26,6 @@ def admin_required(current_user: Annotated[dict, Depends(get_current_customer)])
     if current_user['role'] != 1:  # Check if role_id is 1 (admin)
         raise HTTPException(status_code=403, detail="You do not have sufficient permissions")
 
-class ProductRequest(BaseModel):
-    name: str = Field(..., min_length=1)
-    description: Optional[str] = None
-    price: float = Field(..., ge=0)
-    stock_quantity: int = Field(..., ge=0)
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "name": "Rose Bouquet",
-                "description": "A beautiful bouquet of red roses",
-                "price": 29.99,
-                "stock_quantity": 10
-            }
-        }
-
-class ProductResponse(BaseModel):
-    product_id: int
-    name: str
-    description: Optional[str]
-    price: float
-    stock_quantity: int
-
-class ProductUpdateRequest(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    price: Optional[float] = None
-    stock_quantity: Optional[int] = None
-
-class CustomerResponse(BaseModel):
-    customer_id: int
-    name: str
-    email: str
-    total_spent: float
-    loyalty_id: Optional[int]
-    loyal_name: Optional[str]
-
-class OrderResponse(BaseModel):
-    order_id: int
-    customer_id: int
-    total_amount: float
-    order_date: datetime
-    items: List[OrderItemResponse]
 
 @router.post("/products", status_code=status.HTTP_201_CREATED, response_model=ProductResponse)
 def create_product(

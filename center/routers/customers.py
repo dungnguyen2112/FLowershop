@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from Flowershop.center.database import SessionLocal
 from Flowershop.center.models import Customer, CustomerLoyalty
+from Flowershop.center.routers.Basemodel import CustomerResponse, CustomerUpdateRequest, CustomerVerification
 from Flowershop.center.routers.auth import get_current_customer
 
 router = APIRouter(
@@ -23,28 +24,6 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 customer_dependency = Annotated[dict, Depends(get_current_customer)]
-
-
-class CustomerResponse(BaseModel):
-    customer_id: int
-    name: str
-    email: str
-    total_spent: float
-    address: Optional[str]
-    loyalty_id: Optional[int]
-    loyal_name: Optional[str]
-
-
-class CustomerUpdateRequest(BaseModel):
-    name: Optional[str] = None
-    email: Optional[str] = None
-    phone_number: Optional[str] = None
-    address: Optional[str] = None
-
-
-class CustomerVerification(BaseModel):
-    password: str
-    new_password: str = Field(min_length=6)
 
 
 @router.get('/', response_model=CustomerResponse, status_code=status.HTTP_200_OK)

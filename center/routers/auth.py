@@ -10,6 +10,7 @@ from jose import JWTError, jwt
 
 from Flowershop.center.database import SessionLocal
 from Flowershop.center.models import Customer
+from Flowershop.center.routers.Basemodel import CustomerRequest, Token
 
 router = APIRouter(
     prefix='/auth',
@@ -31,29 +32,6 @@ ALGORITHM = 'HS256'
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
-class CustomerRequest(BaseModel):
-    name: str = Field(..., min_length=3)
-    email: str = Field(..., min_length=3)
-    password: str = Field(..., min_length=6)
-    phone_number: str = Field(..., min_length=3)
-    address: str = Field(..., min_length=3)
-    role_id: int = Field(..., ge=1)
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "name": "Nguyễn Văn A",
-                "email": "sacxc@gmail.com",
-                "password": "123456",
-                "phone_number": "0123456789",
-                "address": "Hà Nội",
-                "role_id": 1
-            }
-        }
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
 
 def authenticate_customer(email: str, password: str, db: Session):
     customer = db.query(Customer).filter(Customer.email == email).first()
